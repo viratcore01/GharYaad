@@ -19,6 +19,8 @@ const STR = {
     speaking: '🔊 Answering…', micError: 'Mic not available — type or search instead.',
     noSpeech: 'Did not hear you. Tap the mic and try again.',
     noMic: 'This browser has no voice input. Typing + search still work 100%.',
+    noMicApp: 'This looks like the WhatsApp/Facebook browser — it blocks the mic. Tap ⋯ → “Open in Chrome” for voice. Typing works fine here.',
+    noMicIOS: 'iPhones block voice input inside web apps (Apple rule, all browsers). Typing + smart search work 100% — nothing is broken.',
     quickRecord: '⚡ Quick record (speak or type one sentence)',
     saveMemory: 'Save ✓', quickHint: 'Tip: say “X is in Y” and we fill the form for you.',
     needBoth: 'Please tell both WHAT and WHERE. Example: Keys — under the table.',
@@ -69,6 +71,8 @@ const STR = {
     speaking: '🔊 जवाब दे रहे हैं…', micError: 'माइक उपलब्ध नहीं — लिखकर खोजें।',
     noSpeech: 'सुनाई नहीं दिया। माइक दबाकर फिर बोलिए।',
     noMic: 'इस ब्राउज़र में आवाज़ इनपुट नहीं है। लिखना + खोज पूरी तरह काम करेगा।',
+    noMicApp: 'लगता है WhatsApp/Facebook ब्राउज़र है — ये माइक रोकता है। आवाज़ के लिए ⋯ → “Chrome में खोलें”। लिखना यहाँ चलेगा।',
+    noMicIOS: 'iPhone वेब ऐप में आवाज़ नहीं देता (Apple का नियम, सभी ब्राउज़र में)। लिखना + खोज 100% चलेगा — कुछ टूटा नहीं है।',
     quickRecord: '⚡ जल्दी याद कराएँ (एक वाक्य बोलें या लिखें)',
     saveMemory: 'याद करो ✓', quickHint: 'सुझाव: “X Y में है” बोलिए, फॉर्म खुद भर जाएगा।',
     needBoth: 'कृपया चीज़ और जगह दोनों बताएँ। जैसे: चाबी — मेज़ के नीचे।',
@@ -493,6 +497,7 @@ const cap = (s) => (s || '').replace(/^\p{L}/u, (c) => c.toUpperCase());
 
 /* ---------- voice ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let noMicMsg = ''; /* tailored explanation when voice engine is missing */
 function setMicUI(on, msg) {
   $('micBtn').classList.toggle('listening', !!on);
   if (msg) $('micState').textContent = msg;
@@ -518,7 +523,7 @@ function speak(text, force) {
   } catch (e) {}
 }
 function listenOnce({ targetInput = null, onFinal = null } = {}) {
-  if (!SR) { toast(t('noMic')); if (onFinal) onFinal(''); return; }
+  if (!SR) { toast(noMicMsg || t('noMic')); if (onFinal) onFinal(''); return; }
   try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
   if (recog) { try { recog.abort(); } catch (e) {} }
   recog = new SR();
@@ -1065,7 +1070,12 @@ function wire() {
     ['micBtn', 'quickMicBtn', 'searchMicBtn'].forEach((id) => {
       const b = $(id); if (b && id !== 'micBtn') b.style.display = 'none';
     });
-    setMicUI(false, t('noMic'));
+    /* tell the truth about WHY: in-app browsers and iPhones have no voice engine */
+    const ua = (navigator.userAgent || '').toLowerCase();
+    const inApp = /wv|whatsapp|instagram|fbav|fban|line\/|micromessenger|pinterest|twitter/.test(ua);
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    noMicMsg = inApp ? t('noMicApp') : (isIOS ? t('noMicIOS') : t('noMic'));
+    setMicUI(false, noMicMsg);
   }
 }
 

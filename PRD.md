@@ -227,6 +227,10 @@ No embeddings, no network, deterministic, testable offline.
 - [x] **Swapped routes** — `download.html` → `index.html` (landing is now `/`, the first page at https://gharyaad.vercel.app/), app `index.html` → `app.html`. Fixed all cross-links (landing CTAs + Home tab → `./app.html`; app “Get the app” → `./index.html`), manifest `start_url` → `./app.html`, SW offline fallback → `./app.html`, cache bumped to `ghar-yaad-v4`.
 - [x] **Verified** — localhost `/` serves landing (install hooks present, zero external URLs), `/app.html` serves app; SW v4 caches both entry points.
 
+### v1.6.2 — 2026-10-04 (“mic not available” field report)
+- [x] **Diagnosed** — the message only appears when the browser itself has no SpeechRecognition engine (Apple blocks it in all iPhone browsers; WhatsApp/Facebook in-app browsers also lack it). Not an app bug, but the old message didn't explain that.
+- [x] **Fixed UX** — app now detects the cause from the user-agent and says exactly what to do (in-app browser → “Open in Chrome”; iPhone → typing+search reassurance), in EN+HI (`noMicApp`, `noMicIOS`), on both the status line and mic taps.
+
 ### Planned (only if owner asks — each needs PRD entry before coding)
 - [ ] Optional photo per item (stored as compressed dataURL, quota-guarded) — still offline.
 - [ ] Multi-device sync via manual QR/JSON (still no server).
