@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GharYaad — Family Memory Keeper</title>
+<meta name="description" content="Offline family memory keeper. Record where things are, ask by voice in English or Hindi. No internet, no fees, works forever.">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GharYaad">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">🏠🎙️</span>
+    <div>
+      <h1>GharYaad</h1>
+      <p id="tagline" class="tagline">Where is it? Just ask.</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button id="profileBtn" class="avatar" type="button" aria-label="Members">?</button>
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button id="langEn" class="lang-btn active" type="button">EN</button>
+      <button id="langHi" class="lang-btn" type="button">हिं</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ASK -->
+  <section id="screen-ask" class="screen active" aria-label="Ask">
+    <div class="space-toggle" role="group" aria-label="Private or family">
+      <button class="space-btn" type="button" data-space="private">🔒 <span data-i18n="private">Private</span></button>
+      <button class="space-btn" type="button" data-space="family">👪 <span data-i18n="family">Family</span></button>
+    </div>
+    <p class="hint spaceHint"></p>
+    <div class="hero" aria-label="Voice assistant">
+      <button id="micBtn" class="mic" type="button" aria-label="Tap and ask where something is">
+        <span class="mic-icon" aria-hidden="true">🎙️</span>
+        <span class="mic-ring" aria-hidden="true"></span>
+      </button>
+      <p id="micState" class="mic-state" aria-live="polite" data-i18n="tapAsk">Tap the mic and ask — “Where are the keys?”</p>
+      <p id="transcript" class="transcript" aria-live="polite"></p>
+      <div id="answerCard" class="answer hidden" aria-live="polite">
+        <p id="answerText" class="answer-text"></p>
+        <p id="answerMeta" class="answer-meta"></p>
+        <div class="answer-actions">
+          <button id="speakAgainBtn" class="btn small" type="button">🔊 <span data-i18n="speakAgain">Speak again</span></button>
+          <button id="stopSpeakBtn" class="btn small ghost" type="button">⏹ <span data-i18n="stop">Stop</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="list-head">
+      <h2 data-i18n="recentTitle">Recent</h2>
+      <button id="browseBtn" class="btn small ghost" type="button" data-i18n="browseAll">See all →</button>
+    </div>
+    <div id="recentList" class="list"></div>
+  </section>
+
+  <!-- MEMORIES -->
+  <section id="screen-mem" class="screen" aria-label="Memories">
+    <div class="space-toggle" role="group" aria-label="Private or family">
+      <button class="space-btn" type="button" data-space="private">🔒 <span data-i18n="private">Private</span></button>
+      <button class="space-btn" type="button" data-space="family">👪 <span data-i18n="family">Family</span></button>
+    </div>
+    <p class="hint spaceHint"></p>
+    <div class="card">
+      <div class="row">
+        <input id="searchInput" type="search" autocomplete="off" aria-label="Search memories"
+          placeholder="Search — keys, चाबी, passport…  ( press / )">
+        <button id="searchMicBtn" class="btn icon" type="button" aria-label="Voice search">🎤</button>
+      </div>
+      <div class="filters">
+        <select id="roomFilter" aria-label="Filter by room"><option value="">🏠 All rooms</option></select>
+        <select id="personFilter" aria-label="Filter by person"><option value="">👪 Everyone</option></select>
+        <button id="favFilter" class="btn small ghost" type="button" aria-pressed="false">⭐</button>
+        <select id="sortSel" aria-label="Sort">
+          <option value="recent" data-i18n="sortRecent">Recent first</option>
+          <option value="used" data-i18n="sortUsed">Most asked</option>
+          <option value="az" data-i18n="sortAZ">A–Z</option>
+        </select>
+        <button id="clearFilters" class="btn small ghost" type="button" data-i18n="clear">Clear</button>
+      </div>
+      <div class="stats">
+        <span>📦 <b id="statTotal">0</b> <span data-i18n="items">items</span></span>
+        <span>🆕 <b id="statToday">0</b> <span data-i18n="today">today</span></span>
+        <span>⭐ <b id="statFav">0</b> <span data-i18n="favs">favs</span></span>
+      </div>
+    </div>
+    <div class="list-head">
+      <h2 data-i18n="savedTitle">📒 Saved memories</h2>
+      <div class="row">
+        <button id="undoBtn" class="btn small hidden" type="button">↩ <span data-i18n="undo">Undo</span></button>
+        <button id="clearAllBtn" class="btn small ghost danger" type="button" data-i18n="clearAll">Clear all</button>
+      </div>
+    </div>
+    <div id="list" class="list"></div>
+    <div id="emptyState" class="empty hidden">
+      <p class="empty-big">🗝️</p>
+      <p data-i18n="emptyMsg">Nothing here yet. Tap the mic or add your first memory above.</p>
+    </div>
+  </section>
+
+  <!-- ADD -->
+  <section id="screen-add" class="screen" aria-label="Add">
+    <div class="card" aria-label="Quick record">
+      <h2 data-i18n="quickRecord">⚡ Quick record (speak or type one sentence)</h2>
+      <div class="row">
+        <input id="quickInput" type="text" autocomplete="off"
+          placeholder="e.g. Keys are under the table / चाबी मेज़ के नीचे है">
+        <button id="quickMicBtn" class="btn icon" type="button" aria-label="Dictate sentence">🎤</button>
+      </div>
+      <div class="row end">
+        <button id="quickAddBtn" class="btn primary big" type="button" data-i18n="saveMemory">Save ✓</button>
+      </div>
+      <p class="hint" data-i18n="quickHint">Tip: say “X is in Y” and we fill the form for you.</p>
+    </div>
+    <div class="card" aria-label="Add memory">
+      <h2 data-i18n="addTitle">＋ Remember where something is</h2>
+      <form id="addForm" autocomplete="off">
+        <div class="grid2">
+          <label><span data-i18n="fItem">Thing *</span>
+            <span class="field"><input id="f_item" required maxlength="80" placeholder="keys / चाबी"><button class="btn icon mini" type="button" data-target="f_item" aria-label="Dictate thing">🎤</button></span>
+          </label>
+          <label><span data-i18n="fLoc">Kept where *</span>
+            <span class="field"><input id="f_loc" required maxlength="140" placeholder="under the table / मेज़ के नीचे"><button class="btn icon mini" type="button" data-target="f_loc" aria-label="Dictate location">🎤</button></span>
+          </label>
+          <label><span data-i18n="fRoom">Room</span>
+            <span class="field"><input id="f_room" maxlength="60" placeholder="living room / बैठक"><button class="btn icon mini" type="button" data-target="f_room" aria-label="Dictate room">🎤</button></span>
+          </label>
+          <label><span data-i18n="fPerson">Kept by</span>
+            <span class="field"><input id="f_person" maxlength="60" placeholder="Papa / मम्मी"><button class="btn icon mini" type="button" data-target="f_person" aria-label="Dictate person">🎤</button></span>
+          </label>
+        </div>
+        <div id="roomChips" class="chips" aria-label="Common rooms"></div>
+        <label class="notes"><span data-i18n="fNotes">Note (optional)</span>
+          <span class="field"><input id="f_notes" maxlength="200" placeholder="spare set, blue keychain…"><button class="btn icon mini" type="button" data-target="f_notes" aria-label="Dictate note">🎤</button></span>
+        </label>
+        <div class="row end">
+          <button id="resetBtn" class="btn ghost" type="reset" data-i18n="reset">Reset</button>
+          <button id="saveBtn" class="btn primary big" type="submit">💾 <span data-i18n="remember">Remember this</span></button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- MORE -->
+  <section id="screen-more" class="screen" aria-label="More">
+    <div class="card" aria-label="Backup">
+      <h2 data-i18n="backupTitle">🛡️ Forever backup (works for 100 years)</h2>
+      <p class="hint" data-i18n="backupHint">Your data lives only on this device. Export a file to a pen-drive for safekeeping.</p>
+      <div class="row wrap-btns">
+        <button id="exportBtn" class="btn" type="button">📤 <span data-i18n="export">Export backup</span></button>
+        <label class="btn file">📥 <span data-i18n="import">Import</span><input id="importFile" type="file" accept="application/json,.json" hidden></label>
+        <button id="shareBtn" class="btn" type="button">🔗 <span data-i18n="share">Share list</span></button>
+        <button id="csvBtn" class="btn" type="button">📊 <span data-i18n="exportCsv">CSV</span></button>
+      </div>
+      <div class="meter"><div id="storageMeter" class="meter-fill" style="width:0%"></div></div>
+      <p class="hint"><span data-i18n="storage">Storage used</span>: <b id="storageText">–</b></p>
+    </div>
+    <div class="card" aria-label="Members">
+      <h2 data-i18n="members">Members</h2>
+      <div id="memberList" class="list"></div>
+      <div class="row" style="margin-top:10px">
+        <input id="newMember" type="text" maxlength="30" autocomplete="off" placeholder="Papa / Mummy / दोस्त…">
+        <button id="addMemberBtn" class="btn primary" type="button" aria-label="Add member">＋</button>
+      </div>
+      <p class="hint" data-i18n="membersHint">Family sees everything saved in Family space. Private stays inside one profile only.</p>
+    </div>
+    <div class="card" aria-label="App">
+      <h2 data-i18n="appTitle">App</h2>
+      <div class="row wrap-btns">
+        <button id="installBtn" class="btn small hidden" type="button">⬇ <span data-i18n="install">Install</span></button>
+        <button id="helpBtn" class="btn small" type="button" data-i18n="helpBtn">How to use 🙏</button>
+        <a class="btn small" href="./index.html" style="text-decoration:none">🌐 <span data-i18n="getApp">Get the app</span></a>
+      </div>
+      <p class="hint">GharYaad v1.2 · 100% offline · no accounts · no fees · <span data-i18n="madeFor">made for family</span> ❤️</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <button class="tab active" type="button" data-tab="ask" aria-label="Ask"><span class="tab-ic" aria-hidden="true">🎙️</span><span class="tab-tx">Ask</span></button>
+  <button class="tab" type="button" data-tab="mem" aria-label="Memories"><span class="tab-ic" aria-hidden="true">📒</span><span class="tab-tx">Saved</span></button>
+  <button class="tab" type="button" data-tab="add" aria-label="Add"><span class="tab-ic" aria-hidden="true">＋</span><span class="tab-tx">Add</span></button>
+  <button class="tab" type="button" data-tab="more" aria-label="More"><span class="tab-ic" aria-hidden="true">⋯</span><span class="tab-tx">More</span></button>
+</nav>
+
+<dialog id="helpDialog" class="help">
+  <h2 data-i18n="helpTitle">How to use 🙏</h2>
+  <div id="helpBody"></div>
+  <button id="closeHelp" class="btn primary" type="button" data-i18n="gotIt">Got it!</button>
+</dialog>
+
+<dialog id="pinDialog" class="help">
+  <h2 data-i18n="enterPin">Enter PIN</h2>
+  <p id="pinWho" class="hint"></p>
+  <div class="row">
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="12" autocomplete="off" aria-label="PIN">
+  </div>
+  <div class="row end">
+    <button id="pinCancel" class="btn ghost" type="button">✕</button>
+    <button id="pinOk" class="btn primary" type="button">OK ✓</button>
+  </div>
+</dialog>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

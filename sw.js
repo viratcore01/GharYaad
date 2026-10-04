@@ -1,7 +1,7 @@
-/* GharYaad Service Worker — cache-first, works offline forever. v3 */
-const CACHE = 'ghar-yaad-v3';
+/* GharYaad Service Worker — cache-first, works offline forever. v4 */
+const CACHE = 'ghar-yaad-v4';
 const ASSETS = [
-  './', './index.html', './download.html', './styles.css', './app.js',
+  './', './index.html', './app.html', './styles.css', './app.js',
   './manifest.webmanifest',
   './icons/favicon.svg', './icons/icon-192.svg', './icons/icon-512.svg'
 ];
@@ -24,7 +24,7 @@ self.addEventListener('fetch', (e) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));
         return res;
-      }).catch(() => caches.match('./index.html'));
+      }).catch(() => caches.match('./app.html'));
     })
   );
 });

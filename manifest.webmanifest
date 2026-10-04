@@ -2,7 +2,7 @@
   "name": "GharYaad — Family Memory Keeper",
   "short_name": "GharYaad",
   "description": "Offline family memory keeper. Ask by voice in English or Hindi where things are. No internet, no fees, works forever.",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

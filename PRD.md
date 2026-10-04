@@ -50,7 +50,8 @@ Target users: one household, 2–10 members, Hindi and/or English speaking, low 
 ┌──────────────────────────────────────────────┐
 │  GharYaad PWA (100% on-device)               │
 │                                              │
-│  index.html  → structure + PWA meta          │
+│  index.html  → landing page (first page)      │
+│  app.html      → app shell + PWA meta             │
 │  styles.css  → mobile-first, no framework    │
 │  app.js      → store + i18n + search + voice │
 │  manifest.webmanifest + sw.js + icons/       │
@@ -69,7 +70,8 @@ NO backend. NO fetch(). NO API key. NO token. NO database server.
 
 | File | Purpose | Size budget |
 |---|---|---|
-| `index.html` | App shell, hero mic, search, form, list, footer, PWA links | ~12 KB |
+| `index.html` | Landing page (“Get GharYaad”) — first page at `/` | ~9 KB |
+| `app.html` | App shell, hero mic, search, form, list, footer, PWA links | ~12 KB |
 | `styles.css` | Theme (light/warm home theme), responsive, mic animation, cards | ~9 KB |
 | `app.js` | Store, i18n EN/HI, smart search, voice in/out, backup, UI wiring | ~35 KB |
 | `manifest.webmanifest` | PWA name, icons, display standalone, theme colors | <1 KB |
@@ -221,6 +223,10 @@ No embeddings, no network, deterministic, testable offline.
 - [x] **Migration** — v1 data auto-upgrades to v2: old memories become Family (nothing disappears), owner set to first profile; corrupt-data rescue preserved; export v2 includes profiles, import merges unknown owners safely.
 - [x] **Verified** — 15/15 space-isolation battery (cross-space blindness both directions, PIN wrong/right, undo keeps scope, migration lossless); dialect 23/23 + upgrade + Hindi + structure (54/54 IDs) still green; localhost serves all (SW bumped to v3).
 
+### v1.6.1 — 2026-10-04 (landing page first, owner request + vercel live site)
+- [x] **Swapped routes** — `download.html` → `index.html` (landing is now `/`, the first page at https://gharyaad.vercel.app/), app `index.html` → `app.html`. Fixed all cross-links (landing CTAs + Home tab → `./app.html`; app “Get the app” → `./index.html`), manifest `start_url` → `./app.html`, SW offline fallback → `./app.html`, cache bumped to `ghar-yaad-v4`.
+- [x] **Verified** — localhost `/` serves landing (install hooks present, zero external URLs), `/app.html` serves app; SW v4 caches both entry points.
+
 ### Planned (only if owner asks — each needs PRD entry before coding)
 - [ ] Optional photo per item (stored as compressed dataURL, quota-guarded) — still offline.
 - [ ] Multi-device sync via manual QR/JSON (still no server).
@@ -247,7 +253,9 @@ Reviewed the obvious candidates (local-first note apps, Fuse.js, annyang, PWA st
 ```powershell
 cd C:\Users\hp\Desktop\mic
 python -m http.server 8000
-# open http://localhost:8000  (use Chrome/Edge on the phone via same Wi-Fi: http://<pc-ip>:8000)
+# open http://localhost:8000 → landing page; app lives at http://localhost:8000/app.html
+# (use Chrome/Edge on the phone via same Wi-Fi: http://<pc-ip>:8000)
+# Live site: https://gharyaad.vercel.app/ (landing first, app at /app.html)
 # If Python's server refuses connections on your machine, any static server works,
 # e.g.: node -e "require('http').createServer((q,s)=>{require('fs').readFile(__dirname+((q.url=='/')?'/index.html':q.url),(e,d)=>{if(e){s.writeHead(404);s.end()}else{s.end(d)}})}).listen(8000)"
 ```
